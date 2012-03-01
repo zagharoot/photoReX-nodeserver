@@ -4,32 +4,54 @@ module.exports = function(app, redisClient){
 	
 function validateCreateUserParams(req)
 {
-	if (! req.body)
-		return false; 
+	if (req.hasOwnProperty('body'))
+		if (req.body.hasOwnProperty('secret'))
+			if (req.body.secret.length < 100)
+				return; 
 	
-	if (! req.body.secret)
-		return false; 
-	
-	return true; 
+	var e = require('./serverError').clientError(10); 
+	throw e; 
 }
-	
+
+
+
+
 function createUser(req, res, next){
+		
+	validateCreateUserParams(req); 
 	
-	console.log("secret received: " + req.body.secret); 
+	var secret = req.body.secret; 
+	var userid = undefined; 
+	
+//	console.log("secret received: " + req.body.secret); 
 
 	redisClient.incr("counter:user.id", function(err, reply){
-		var user = {d: {masterAcountID: ''} }; 
+
+		//if error happens, next is called and we return here 
+		if (redisClient.errorCheck(err, next))
+			return; 
+
+				
+		var user = {d: {masterAcountID: ''} }; 		
+		userid = reply; 
+
+		console.log('create user for secret: ' + secret + ' user:  ' + userid);	
+		var multi = redisClient.multi(); 
+		multi.sadd("users", userid);
+		multi.hset("user:"+userid, "secret", secret);
 		
-		var userid = reply; 
-		//TODO: check for errors 
-		
-		user.d.masterAcountID = userid; 
-		res.send(user);
-		
-		redisClient.sadd("users", userid);
-		redisClient.hset("user:"+userid, "secret", req.body.secret, redisClient.print); 
+		multi.exec(function(err, reply){
+			if (redisClient.errorCheck(err, next))
+				return; 
+
+			//here we know everything went trough smoothly!
+			user.d.masterAcountID = userid; 
+			res.send(user);
+		}); 
 	}); 
 }
+
+
 
 app.all('/ws/createUser', createUser );
 

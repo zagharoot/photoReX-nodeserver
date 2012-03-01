@@ -3,44 +3,54 @@ module.exports = function(app, redisClient){
 
 var MIN_QUEUE_LENGTH = 3; 				//number of required recommendation pages in the queue
 
+
+function validateRecommendParams(req)
+{	
+	//right now, there's nothing to validate (userid is already validated as part of authentication)
+	//at this point, howMany is not used in the rec generation. or is it? 
+	
+	
+	return; 
+	
+//	var e = require('./serverError').ErrorWithNumber(10); 
+//	throw e; 
+}
+
+
 function recommend(req, res, next){
-	redisClient.inc('counter:page.requests'); 		//total number of recommendations 
+
+	validateRecommendParams(req); 
+	
+	console.log('recommend for user: ' + req.body.userid); 
+	redisClient.incr('counter:page.requests'); 		//total number of recommendations (doesn't need to be synced with other commands)
 	
 	var qkey = 'user:' + req.body.userid + ':queue'; 
+
+	//read a blocking from the queue 
+	redisClient.blpop(qkey, 10, function (err, reply){
+		if (redisClient.errorCheck(err, next))
+			return; 
+		
+			res.send(reply); 
+	});
 	
+	
+	//we quickly get to here, no matter if queue is empty or not. we can ask for more recommendations in parallel
 	redisClient.llen(qkey, function(err, reply){
+		if (redisClient.errorCheck(err, next))
+			return; 
 
 		var len = parseInt(reply); 
 		
-		if (len< MIN_QUEUE_LENGTH)
+		if (len< MIN_QUEUE_LENGTH)		//add a recommendation request to the queue of recommendations 
 		{
-			redisClient.publish('recommend', ''+ (MIN_QUEUE_LENGTH-len)); 
-		}
-		
-		//read a blocking from the queue 
-		redisClient.blpop('key', 10, function (err, reply){
-			//reply has the id of the page. retrieve the images 
-			
-			if (err)
-				throw new Error('could not get a recommendation'); 
-			
-			var page = parseInt(reply); 
-			var pageKey = 'user:' + req.body.userid + ':page:' + page + ':desc'; 
-			
-			redisClient.get(pageKey, function(err, reply){
-				//reply has the json representation of the page. can be returned as is. 
-
-				if (err)
-					throw new Error('could not get a recommendation') ;
-				res.send(reply); 
-			}); 
-			
-		}); 
+			redisClient.rpush('users:recommend:queue', '' + req.body.userid + ':' + (MIN_QUEUE_LENGTH-len)); 
+		}		
 	}); 
 }
 
 
-app.get('/rlimage/imagerecommendationservice.asmx/recommend', recommend); 
+app.all('/ws/recommend', recommend); 
 
 
 }; 

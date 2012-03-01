@@ -1,10 +1,19 @@
 module.exports = function(app, redisClient){
 
 
-function updateModel(req, res, next){
+function validateUpdateModelParams(req)
+{
+	//TODO: fill this 
 
+	return; 
+}
+	
+	
+function updateModel(req, res, next){
+	validateUpdateModelParams(req); 
+	
 }
 
-app.get('/rlimage/imagerecommendationservice.asmx/updateModel', updateModel); 
+app.post('/ws/updateModel', updateModel); 
 
 }; 
