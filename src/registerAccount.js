@@ -14,12 +14,12 @@ function validateRegisterAccountParams(req)
 						return; 
 				} //WEBSITE:
 				else			
-					throw require('./serverError').clientError(11);   //no such service 
+					throw require('./serverError').clientError(Error.CL_NO_SUCH_SERVICE);   //no such service 
 				
 			}
 				return; 
 	
-	var e = require('./serverError').clientError(10); 
+	var e = require('./serverError').clientError(Error.CL_BAD_ARG); 
 	throw e; 
 }
 

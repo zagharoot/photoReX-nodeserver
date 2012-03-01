@@ -12,7 +12,7 @@ function validateRecommendParams(req)
 	
 	return; 
 	
-//	var e = require('./serverError').ErrorWithNumber(10); 
+//	var e = require('./serverError').clientError(Error.CL_BAD_ARG); 
 //	throw e; 
 }
 

@@ -11,10 +11,10 @@ function validateDeregisterAccountParams(req)
 				if (accountName == 'flickrAccount' ) //WEBSITE: 
 					return; 
 				else			
-					throw require('./serverError').clientError(11);   //no such service 
+					throw require('./serverError').clientError(Error.CL_NO_SUCH_SERVICE);   //no such service 
 			}
 	
-	var e = require('./serverError').clientError(10); 	//bad parameters 
+	var e = require('./serverError').clientError(Error.CL_BAD_INPUT_ARG); 	//bad parameters 
 	throw e; 
 }
 

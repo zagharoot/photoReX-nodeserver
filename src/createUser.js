@@ -9,7 +9,7 @@ function validateCreateUserParams(req)
 			if (req.body.secret.length < 100)
 				return; 
 	
-	var e = require('./serverError').clientError(10); 
+	var e = require('./serverError').clientError(Error.CL_BAD_INPUT_ARG); 
 	throw e; 
 }
 

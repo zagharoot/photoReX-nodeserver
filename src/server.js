@@ -7,6 +7,16 @@ var app = express.createServer();
 var redisClient = redis.createClient(); 
 
 
+// add custom error codes to the Error class 
+Error.CL_BAD_INPUT_ARG 			= 11; 			//arguments to the call was not correct 
+Error.CL_NO_SUCH_SERVICE		= 12; 			//the website service is not supported 
+
+Error.IN_REDIS_ERROR			= 21; 			//error related to redis connection 
+Error.IN_RECOMMENDATION_TIMEOUT = 22; 			//the recommendation queue didn't fill in time (timeout happened in blpop)
+
+//------------------------------------------------------------------------------------
+
+
 //There is a reason we do error handling this way. we can't just throw exception here because the call 
 // stack rolls up under redis and therefore app.error is not called, which means can't do clean error checking 
 redis.RedisClient.prototype.errorCheck = function (err, next) 
@@ -14,8 +24,7 @@ redis.RedisClient.prototype.errorCheck = function (err, next)
 	if (!err)
 		return false; //no error 
 	
-
-	var e = require('./serverError').internalError(5,err); 
+	var e = require('./serverError').internalError(Error.IN_REDIS_ERROR,err); 
 	
 	next(e); 
 	return true; 
@@ -29,10 +38,11 @@ redisClient.on('error', function(err)
 redisClient.on('end', function(){
 }); 
 
-
 redisClient.on('reconnecting', function(){
 }); 
 
+
+// ----------------------------------------------------------------------------------------
 
 app.use(express.errorHandler({ dump: true, stack: true }));
 app.use(express.bodyParser()); 
@@ -77,12 +87,6 @@ app.get('/ws/error', function(req, res, next){
 	
 	
 }); 
-
-
-
-
-
-
 
 
 if (!module.parent) {
