@@ -30,8 +30,23 @@ function recommend(req, res, next){
 	redisClient.blpop(qkey, 10, function (err, reply){
 		if (redisClient.errorCheck(err, next))
 			return; 
-		
-			res.send(reply); 
+
+		if (!reply)
+		{
+			var e = require('./serverError').internalError(Error.IN_RECOMMENDATION_TIMEOUT); 
+			next(e); 
+		}else
+		{
+			res.send(reply[1]); 
+			
+			//save the current visit in redis (if we don't here, it's not saved in redis!) 
+			var recom = JSON.parse(reply[1]);
+			if (recom.hasOwnProperty('pageid'))
+			{
+				var val = "" + recom.pageid + ":" + new Date().getTime();
+				redisClient.rpush(keys.userPages(req.body.userid), val); 
+			}
+		}
 	});
 	
 	
