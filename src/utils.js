@@ -1,6 +1,7 @@
 module.exports = function(app, redisClient){
 
 function ping(req, res, next){
+	console.log('sending pong'); 
 	res.send('pong'); 
 }
 

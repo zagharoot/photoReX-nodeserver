@@ -1,6 +1,7 @@
 
 module.exports = function(app, redisClient){
 
+	var keys	= require('./redisKey'); 
 	
 function validateCreateUserParams(req)
 {
@@ -13,9 +14,6 @@ function validateCreateUserParams(req)
 	throw e; 
 }
 
-
-
-
 function createUser(req, res, next){
 		
 	validateCreateUserParams(req); 
@@ -25,7 +23,7 @@ function createUser(req, res, next){
 	
 //	console.log("secret received: " + req.body.secret); 
 
-	redisClient.incr("counter:user.id", function(err, reply){
+	redisClient.incr(keys.counterUserId(), function(err, reply){
 
 		//if error happens, next is called and we return here 
 		if (redisClient.errorCheck(err, next))
@@ -37,8 +35,8 @@ function createUser(req, res, next){
 
 		console.log('create user for secret: ' + secret + ' user:  ' + userid);	
 		var multi = redisClient.multi(); 
-		multi.sadd("users", userid);
-		multi.hset("user:"+userid, "secret", secret);
+		multi.sadd(keys.users(), userid);
+		multi.hset(keys.user(userid), "secret", secret);
 		
 		multi.exec(function(err, reply){
 			if (redisClient.errorCheck(err, next))

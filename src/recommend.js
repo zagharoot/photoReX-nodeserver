@@ -3,6 +3,7 @@ module.exports = function(app, redisClient){
 
 var MIN_QUEUE_LENGTH = 3; 				//number of required recommendation pages in the queue
 
+var keys	= require('./redisKey'); 
 
 function validateRecommendParams(req)
 {	
@@ -22,9 +23,9 @@ function recommend(req, res, next){
 	validateRecommendParams(req); 
 	
 	console.log('recommend for user: ' + req.body.userid); 
-	redisClient.incr('counter:page.requests'); 		//total number of recommendations (doesn't need to be synced with other commands)
+	redisClient.incr(keys.counterPageRequests()); 		//total number of recommendations (doesn't need to be synced with other commands)
 	
-	var qkey = 'user:' + req.body.userid + ':queue'; 
+	var qkey = keys.userQueue(req.body.userid); // 'user:' + req.body.userid + ':queue'; 
 
 	//read a blocking from the queue 
 	redisClient.blpop(qkey, 10, function (err, reply){
@@ -59,13 +60,12 @@ function recommend(req, res, next){
 		
 		if (len< MIN_QUEUE_LENGTH)		//add a recommendation request to the queue of recommendations 
 		{
-			redisClient.rpush('users:recommend:queue', '' + req.body.userid + ':' + (MIN_QUEUE_LENGTH-len)); 
+			redisClient.rpush(keys.usersRecommendQueue(), '' + req.body.userid + ':' + (MIN_QUEUE_LENGTH-len+3)); 
 		}		
 	}); 
 }
 
 
 app.all('/ws/recommend', recommend); 
-
 
 }; 

@@ -1,5 +1,6 @@
 module.exports = function(app, redisClient){
 
+	var keys	= require('./redisKey'); 
 
 function validateDeregisterAccountParams(req)
 {	
@@ -27,10 +28,8 @@ function deregisterAccount(req, res, next){
 	if (accountName == "flickrAccount")
 	{
 		console.log('deregister flickr account for user ' + req.body.userid); 
-		
-		var key = 'user:' + req.body.userid + ':flickr'; 
-		
-		redisClient.hdel(key, 'username', 'accessSecret', 'accessToken', function(err, reply){
+				
+		redisClient.hdel(keys.userFlickr(req.body.userid), 'username', 'accessSecret', 'accessToken', function(err, reply){
 			
 			//if error happens, next is called and we return here 
 			if (redisClient.errorCheck(err, next))
