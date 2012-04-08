@@ -2,12 +2,13 @@
 
 var express = require('express');
 var redis   = require('redis'); 
+var fs 		= require('fs'); 
 
 var app = express.createServer();
 var redisClient = redis.createClient(); 
 
 
-// add custom error codes to the Error class 
+// add custom error codes to the Error class: CL errors are the ones sent to the client, IN are the internal ones 
 Error.CL_BAD_INPUT_ARG 			= 11; 			//arguments to the call was not correct 
 Error.CL_NO_SUCH_SERVICE		= 12; 			//the website service is not supported 
 
@@ -42,12 +43,16 @@ redisClient.on('reconnecting', function(){
 }); 
 
 
-// ----------------------------------------------------------------------------------------
+// ------------------------------------Configure LOGGING ----------------------------------------------------
+express.logger.token('rawdate', function(req,res){return Math.round((new Date()).getTime() / 1000);});
+var logFile = fs.createWriteStream('../server-logs/nodeserver-log.txt', {flags: 'a'}); //use {flags: 'w'} to open in write mode
+var logOption = {format: "[:rawdate] :url :status :res[content-length] - :response-time ms", stream: logFile}; 
+app.use(express.logger(logOption)); 
 
+//----------------------------------------------------------------------------------------------------------
 app.use(express.errorHandler({ dump: true, stack: true }));
 app.use(express.bodyParser()); 
 app.use(app.router);
-
 
 app.error(function(err, req, res, next){
 	if (err !== 0 )
@@ -66,7 +71,7 @@ app.error(function(err, req, res, next){
 }); 
 
 app.use(function(req, res){
-  res.send(404, { error: "Lame, can't find that" });
+  res.send(404, { error: "There's no such service" });
 });
 
 
@@ -78,7 +83,7 @@ require('./updateModel')(app, redisClient);
 require('./utils')(app, redisClient); 
 
 
-//Error generation test
+//Error generation test. I probably need to remove this 
 app.get('/ws/error', function(req, res, next){
 	var e = new Error(); 
 	e.src = 'me'; 

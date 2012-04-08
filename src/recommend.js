@@ -48,6 +48,7 @@ function recommend(req, res, next){
 				redisClient.rpush(keys.userPages(req.body.userid), val); 
 			}
 		}
+		
 	});
 	
 	
