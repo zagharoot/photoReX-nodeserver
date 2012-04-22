@@ -1,1 +1,1 @@
-node ./src/server.js
+node ./src/photoReX-server.js
