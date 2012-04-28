@@ -58,7 +58,7 @@ function recommend(req, res, next){
 				
 				for (var j=0; j< replies.length; j++)
 				{
-					console.log(recom.pics[j].picture.hash + " : " + replies[j]); 
+//					console.log(recom.pics[j].picture.hash + " : " + replies[j]); 
 					if (replies[j] != null) 
 						recom.pics[j].picture.isViewed = true; 
 					else

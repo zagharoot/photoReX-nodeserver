@@ -5,7 +5,6 @@ var keys	= require('./redisKey');
 function validateUpdateModelParams(req)
 {
 	//The format of the body should be like this: { userid: '5', collectionID: '4', picHash: 'zzz' }
-	console.log(req.body); 
 
 	if (req.hasOwnProperty('body'))
 		if (req.body.hasOwnProperty('collectionID') && req.body.hasOwnProperty('picHash'))
@@ -31,6 +30,10 @@ function updateModel(req, res, next){
 	//update user and pic viewed
 	redisClient.zadd(userKey, pageid, pichash); 
 	redisClient.sadd(picKey, uid); 
+	
+	res.send('ACK'); 
+	
+	
 }
 
 app.post('/ws/updateModel', updateModel); 
