@@ -23,7 +23,10 @@ function recommend(req, res, next){
 	validateRecommendParams(req); 
 	
 	console.log('recommend for user: ' + req.body.userid); 
-	redisClient.incr(keys.counterPageRequests()); 		//total number of recommendations (doesn't need to be synced with other commands)
+	redisClient.incr(keys.counterPageRequests(), function (err, reply){
+		if (redisClient.errorCheck(err, next))
+			return; 
+	}); 		//total number of recommendations (doesn't need to be synced with other commands)
 	
 	var qkey = keys.userQueue(req.body.userid); // 'user:' + req.body.userid + ':queue'; 
 

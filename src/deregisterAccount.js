@@ -10,6 +10,8 @@ function validateDeregisterAccountParams(req)
 			{
 				var accountName = req.body.account.accountName; 
 				if (accountName == 'flickrAccount' ) //WEBSITE: 
+					return;
+				else if (accountName == 'fiveHundredPXAccount')		//TODO: maybe do some kind of hand shake? 
 					return; 
 				else			
 					throw require('./serverError').clientError(Error.CL_NO_SUCH_SERVICE);   //no such service 
@@ -29,7 +31,7 @@ function deregisterAccount(req, res, next){
 	{
 		console.log('deregister flickr account for user ' + req.body.userid); 
 				
-		redisClient.hdel(keys.userFlickr(req.body.userid), 'username', 'accessSecret', 'accessToken', function(err, reply){
+		redisClient.hdel(keys.userFlickr(req.body.userid), 'username', 'userid', 'accessSecret', 'accessToken', function(err, reply){
 			
 			//if error happens, next is called and we return here 
 			if (redisClient.errorCheck(err, next))
@@ -39,6 +41,21 @@ function deregisterAccount(req, res, next){
 			return; 
 		}); 		
 	} //WEBSITE: add  others here 
+	else if (accountName = 'fiveHundredPXAccount')
+	{
+		console.log('deregister 500px account for user ' + req.body.userid); 
+		
+		redisClient.hdel(keys.user500px(req.body.userid), 'username', 'userid', 'accessSecret', 'accessToken', function(err, reply){
+			
+			//if error happens, next is called and we return here 
+			if (redisClient.errorCheck(err, next))
+				return; 
+			
+			res.send('ACK'); 
+			return; 
+		}); 		
+		
+	}
 }
 
 app.post('/ws/deregisterAccount', deregisterAccount); 

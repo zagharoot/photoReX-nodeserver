@@ -31,9 +31,9 @@ function userInstagram(userid)
 	return "user:" + userid + ":instagram"; 	
 }
 
-function user500pix(userid)
+function user500px(userid)
 {
-	return "user:" + userid + ":500pix"; 	
+	return "user:" + userid + ":500px"; 	
 }
 //WEBSITE:
 
@@ -101,7 +101,7 @@ exports.user 			= user;
 exports.userServices	= userServices; 
 exports.userFlickr		= userFlickr; 
 exports.userInstagram	= userInstagram;
-exports.user500pix		= user500pix; 
+exports.user500px		= user500px; 
 exports.userQueue		= userQueue; 
 exports.userVisited		= userVisited; 
 exports.userViewed		= userViewed; 
