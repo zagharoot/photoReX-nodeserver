@@ -31,7 +31,7 @@ function deregisterAccount(req, res, next){
 	{
 		console.log('deregister flickr account for user ' + req.body.userid); 
 				
-		redisClient.hdel(keys.userFlickr(req.body.userid), 'username', 'userid', 'accessSecret', 'accessToken', function(err, reply){
+		redisClient.del(keys.userFlickr(req.body.userid), function(err, reply){
 			
 			//if error happens, next is called and we return here 
 			if (redisClient.errorCheck(err, next))
@@ -45,7 +45,7 @@ function deregisterAccount(req, res, next){
 	{
 		console.log('deregister 500px account for user ' + req.body.userid); 
 		
-		redisClient.hdel(keys.user500px(req.body.userid), 'username', 'userid', 'accessSecret', 'accessToken', function(err, reply){
+		redisClient.del(keys.user500px(req.body.userid), function(err, reply){
 			
 			//if error happens, next is called and we return here 
 			if (redisClient.errorCheck(err, next))
