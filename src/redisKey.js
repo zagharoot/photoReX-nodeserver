@@ -21,6 +21,11 @@ function userServices(userid)
 	return "user:" + userid + ":services"; 
 }
 
+function userServicesEnabled(userid)
+{
+	return "user:" + userid + ":services:enabled"; 
+}
+
 function userFlickr(userid)
 {
 	return "user:" + userid + ":flickr"; 

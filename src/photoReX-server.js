@@ -81,7 +81,7 @@ require('./deregisterAccount')(app, redisClient);
 require('./recommend')(app, redisClient); 
 require('./updateModel')(app, redisClient); 
 require('./utils')(app, redisClient); 
-
+require('./setEnabledAccount')(app, redisClient); 
 
 //Error generation test. I probably need to remove this 
 app.get('/ws/error', function(req, res, next){
