@@ -31,7 +31,7 @@ function recommend(req, res, next){
 	var qkey = keys.userQueue(req.body.userid); // 'user:' + req.body.userid + ':queue'; 
 
 	//read a blocking from the queue 
-	redisClient.blpop(qkey, 10, function (err, reply){
+	redisClient.blpop(qkey, 20, function (err, reply){
 		if (redisClient.errorCheck(err, next))
 			return; 
 
