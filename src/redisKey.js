@@ -23,7 +23,7 @@ function userServices(userid)
 
 function userServicesEnabled(userid)
 {
-	return "user:" + userid + ":services:enabled"; 
+	return "user:" + userid + ":services"; 
 }
 
 function userFlickr(userid)
@@ -102,6 +102,7 @@ function counterPageRequests()
 
 exports.users			= users; 
 exports.usersRecommendQueue = usersRecommendQueue; 
+exports.userServicesEnabled = userServicesEnabled; 
 exports.user 			= user;
 exports.userServices	= userServices; 
 exports.userFlickr		= userFlickr; 

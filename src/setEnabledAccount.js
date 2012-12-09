@@ -1,6 +1,6 @@
 module.exports = function(app, redisClient){
 
-	var keys	= require('./redisKey'); 
+var keys	= require('./redisKey'); 
 
 function validateSetEnabledAccountParams(req)
 {	
@@ -31,16 +31,35 @@ function setEnabledAccount(req, res, next){
 		
 	var account = req.body.account; 
 	var enabled = req.body.enabled; 
+
 	
-	
-	if (enabled)
-		console.log('enabling' + account + ' account for user ' + req.body.userid); 
-	else
-		console.log('disabling' + account + ' account for user ' + req.body.userid); 
+	//clear the recommendation queue for this user as the content might not be uptodate 
+	//TODO: should we add a recommend command so we put some pics back into it? 
+	key = keys.userQueue(req.body.userid); 
+	redisClient.del(key, function(err, reply){
 		
-		redisClient.lrem(keys.userServicesEnabled(req.body.userid), account, function(err, reply){ 	
-//		redisClient.del(keys.userFlickr(req.body.userid), function(err, reply){
+		if (redisClient.errorCheck(err, next))
+			return; 
+	}); 
+	
+	
+	
+	key = keys.userServicesEnabled(req.body.userid); 
+
+	if (enabled)
+	{
+		redisClient.rpush(key, account, function(err, reply){
 			
+			//if error happens, next is called and we return here
+			if (redisClient.errorCheck(err, next))
+				return; 
+
+			res.send('ACK');
+			return; 			
+		});
+	}else{		
+		redisClient.lrem(key, 0, account, function(err, reply){ 	
+
 			//if error happens, next is called and we return here 
 			if (redisClient.errorCheck(err, next))
 				return; 
@@ -48,8 +67,11 @@ function setEnabledAccount(req, res, next){
 			res.send('ACK'); 
 			return; 
 		}); 		
+	}
+	
+	
+	
 }
-
 app.post('/ws/setEnabledAccount', setEnabledAccount); 
 
 }; 
