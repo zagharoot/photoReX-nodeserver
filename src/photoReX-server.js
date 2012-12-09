@@ -83,6 +83,8 @@ require('./updateModel')(app, redisClient);
 require('./utils')(app, redisClient); 
 require('./setEnabledAccount')(app, redisClient); 
 require('./serverPing')(app, redisClient); 
+require('./clearCache')(app, redisClient); 
+require('./clearHistory')(app, redisClient); 
 
 //Error generation test. I probably need to remove this 
 app.get('/ws/error', function(req, res, next){
